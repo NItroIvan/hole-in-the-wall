@@ -1,4 +1,5 @@
 import cv2
+import time
 from config.settings import *
 from model.u2net_loader import load_model
 from processing.segmentation import get_transform, get_mask
@@ -31,23 +32,34 @@ frame_count = 0
 target_mask = generate_mask("assets/shapes/dexter/dexter.png", model, device, transform)
 target_mask = cv2.resize(target_mask, (FRAME_WIDTH, FRAME_HEIGHT))
 
+interval = 1.0
+start_time = time.perf_counter()
+next_tick = start_time + interval
+iou_score = 0.0
+
 while True:
+    current_time = time.perf_counter()
+
     ret, frame = cap.read()
     if not ret:
         break
 
     # resize frame to match target mask dimensions
     frame = cv2.resize(frame, (FRAME_WIDTH, FRAME_HEIGHT))
-
     frame_count += 1
+
     if frame_count % FRAME_SKIP != 0:
         continue
 
     mask = get_mask(frame, model, device, transform)
 
-    iou_score = calculate_iou(mask, target_mask)
+    if current_time >= next_tick:
+        iou_score = calculate_iou(mask, target_mask)
+        start_time = current_time
+        next_tick = current_time + interval
 
-    draw_iou(mask, iou_score, position="top-right")
+    draw_iou(mask, iou_score, start_time, position="top-right")
+
     cv2.imshow("Mask", mask)
     cv2.imshow("Frame", frame)
     cv2.imshow("Target Mask", target_mask)
