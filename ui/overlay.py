@@ -12,7 +12,7 @@ def draw_iou_text(frame, iou, x, y, w, h):
     cv2.putText(frame, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
 def draw_clock_fill(frame, x, y, w, h, start_time, duration=1.0):
-    elapsed = (time.time() - start_time) % duration
+    elapsed = (time.perf_counter() - start_time) % duration
     progress = elapsed / duration
     
     angle = int(progress * 360)
