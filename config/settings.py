@@ -1,9 +1,16 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
+
 # RTSP / CAMERA
-RTSP_USER = "admin"
-RTSP_PASSWORD = "#YoYoIvan500721"
-RTSP_HOST = "192.168.137.58"
-RTSP_PORT = 554
-RTSP_PATH = "h264Preview_01_main"
+RTSP_USER = os.getenv("RTSP_USER", "admin")
+RTSP_PASSWORD = os.getenv("RTSP_PASSWORD")
+RTSP_HOST = os.getenv("RTSP_HOST")
+RTSP_PORT = os.getenv("RTSP_PORT", "554")
+RTSP_PATH = os.getenv("RTSP_PATH", "h264Preview_01_main")
 
 # VIDEO SETTINGS
 FRAME_WIDTH = 1280
