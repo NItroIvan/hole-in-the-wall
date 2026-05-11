@@ -5,6 +5,9 @@ def generate_mask(image_path, model, device, transform):
     import torch
 
     img = cv2.imread(image_path)
+    if img is None:
+        raise FileNotFoundError(f"Target image not found or could not be read: {image_path}")
+
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pil_img = Image.fromarray(img_rgb)
 
