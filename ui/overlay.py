@@ -11,16 +11,43 @@ def draw_iou_text(frame, iou, x, y, w, h):
 
     cv2.putText(frame, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
-def draw_clock_fill(frame, x, y, w, h, start_time, duration=1.0):
-    elapsed = (time.perf_counter() - start_time) % duration
-    progress = elapsed / duration
+def draw_progress_border(frame, start_time, duration=10.0, border_thickness=25):
+    h, w = frame.shape[:2]
+
+    elapsed = time.perf_counter() - start_time
+    progress = min(elapsed / duration, 1.0)
+
+    perimeter = 2 * (w + h)
+    current_length = perimeter * progress
+
+    cv2.rectangle(
+        frame,
+        (0, 0),
+        (w - 1, h - 1),
+        (0, 0, 255),
+        thickness=border_thickness
+    )
+
+    remaining = current_length
+
+    if remaining > 0:
+        draw = min(remaining, w)
+        cv2.line(frame, (0, 0), (int(draw), 0), (0, 255, 0), thickness=border_thickness)
+        remaining -= draw
     
-    angle = int(progress * 360)
-
-    center = (x + w // 2, y + h // 2)
-    axes = (w // 2, h // 2)
-
-    cv2.ellipse(frame, center, axes, 0, -90, -90 + angle, (128, 64, 128), -1)
+    if remaining > 0:
+        draw = min(remaining, h)
+        cv2.line(frame, (w - 1, 0), (w - 1, int(draw)), (0, 255, 0), thickness=border_thickness)
+        remaining -= draw
+    
+    if remaining > 0:
+        draw = min(remaining, w)
+        cv2.line(frame, (w - 1, h - 1), (w - 1 - int(draw), h - 1), (0, 255, 0), thickness=border_thickness)
+        remaining -= draw
+    
+    if remaining > 0:
+        draw = min(remaining, h)
+        cv2.line(frame, (0, h - 1), (0, h - 1 - int(draw)), (0, 255, 0), thickness=border_thickness)
 
 def draw_iou(frame, iou, start_time, position="top-left"):
     h, w = frame.shape[:2]
@@ -35,5 +62,4 @@ def draw_iou(frame, iou, start_time, position="top-left"):
     else:
         x, y = w - rect_w - 10, h - rect_h - 10
     
-    draw_clock_fill(frame, x, y, rect_w, rect_h, start_time)
     draw_iou_text(frame, iou, x, y, rect_w, rect_h)
